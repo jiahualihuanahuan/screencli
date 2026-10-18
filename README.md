@@ -6,7 +6,7 @@ Capture the full screen and translate it on-device, or select a region and searc
 
 ## Requirements
 
-- macOS 15 Sequoia or later (recommended)
+- **macOS 26 (Tahoe) or later** (required for `TranslationSession(installedSource:target:)`)
 - Apple Silicon preferred
 - Screen Recording permission (System Settings > Privacy & Security > Screen Recording)
 - Translation language packs installed for offline use (System Settings > General > Language & Region > Translation Languages)
@@ -62,5 +62,6 @@ swift run screencli translate --to en
 - Translation defaults to English source detection in this initial version; improve with NaturalLanguage later.
 - Multi-monitor support is basic (captures primary/full available).
 - Grant Screen Recording permission on first run.
+- The direct `TranslationSession` initializer used here requires macOS 26+. On older systems the SwiftUI `.translationTask` path is required.
 
 See the product requirements in the conversation history or expand this README as the project evolves.
