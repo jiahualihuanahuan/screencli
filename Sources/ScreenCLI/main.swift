@@ -22,6 +22,9 @@ struct Translate: AsyncParsableCommand {
     @Option(name: .shortAndLong, help: "Target language code (e.g. zh, ja, fr)")
     var to: String = "en"
     
+    @Option(name: .shortAndLong, help: "Seconds to wait before capturing (so you can switch to the target window)")
+    var delay: Double = 2.0
+    
     @Flag(name: .long, help: "Copy result to clipboard")
     var copy = false
     
@@ -29,6 +32,7 @@ struct Translate: AsyncParsableCommand {
     var json = false
     
     func run() async throws {
+        try await waitForDelay(delay)
         print("Capturing full screen...")
         let imageURL = try await captureFullScreen()
         print("Running OCR...")
@@ -72,6 +76,9 @@ struct Search: AsyncParsableCommand {
         abstract: "Select a region of the screen, OCR it, and search on Google"
     )
     
+    @Option(name: .shortAndLong, help: "Seconds to wait before selecting (so you can switch to the target window)")
+    var delay: Double = 2.0
+    
     @Flag(name: .long, help: "Copy OCR text only (do not open browser)")
     var copy = false
     
@@ -79,6 +86,7 @@ struct Search: AsyncParsableCommand {
     var noOpen = false
     
     func run() async throws {
+        try await waitForDelay(delay)
         print("Select a region on screen (drag to select, Escape to cancel)...")
         let imageURL = try await captureInteractiveRegion()
         print("Running OCR...")
@@ -110,6 +118,18 @@ struct Search: AsyncParsableCommand {
 }
 
 // MARK: - Helpers
+
+func waitForDelay(_ seconds: Double) async throws {
+    guard seconds > 0 else { return }
+    print("Switch to the window you want to capture. Capturing in \(Int(seconds.rounded())) seconds...")
+    let total = Int(seconds.rounded())
+    for i in stride(from: total, through: 1, by: -1) {
+        print("\(i)...", terminator: " ")
+        fflush(stdout)
+        try await Task.sleep(nanoseconds: 1_000_000_000)
+    }
+    print("\nCapturing now.")
+}
 
 func captureFullScreen() async throws -> URL {
     let tempDir = FileManager.default.temporaryDirectory
