@@ -177,7 +177,11 @@ func translate(text: String, to target: String) async throws -> String {
         throw NSError(domain: "ScreenCLI", code: 4, userInfo: [NSLocalizedDescriptionKey: "Language pair not supported or pack not installed. Download in System Settings > General > Language & Region > Translation Languages."])
     }
     
-    let session = TranslationSession(installedSource: source, target: targetLang)
-    let response = try await session.translate(text)
-    return response.targetText
+    if #available(macOS 26.0, *) {
+        let session = TranslationSession(installedSource: source, target: targetLang)
+        let response = try await session.translate(text)
+        return response.targetText
+    } else {
+        throw NSError(domain: "ScreenCLI", code: 5, userInfo: [NSLocalizedDescriptionKey: "Direct TranslationSession requires macOS 26 or later. Please update macOS or use an alternative translation path."])
+    }
 }
